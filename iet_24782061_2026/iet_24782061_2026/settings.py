@@ -77,8 +77,15 @@ WSGI_APPLICATION = 'iet_24782061_2026.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql', # Diubah menjadi mysql
+        'NAME': 'smartcity_db',                # Nama database yang dibuat di phpMyAdmin 
+        'USER': 'root',                       # User default XAMPP [cite: 141]
+        'PASSWORD': '',                       # Password default XAMPP biasanya kosong [cite: 142]
+        'HOST': '127.0.0.1',                  # Alamat localhost [cite: 143]
+        'PORT': '3306',                       # Port default MySQL [cite: 144]
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
 }
 
