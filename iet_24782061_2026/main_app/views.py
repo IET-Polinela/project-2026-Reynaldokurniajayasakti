@@ -1,33 +1,50 @@
-from django.shortcuts import render, redirect
+from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
+from django.views import View
+from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404, redirect
 from .models import Report
 from .forms import ReportForm
 
-def home(request):
-    # Logika Simpan (Create)
-    if request.method == "POST":
-        form = ReportForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('home')
-    else:
-        form = ReportForm()
+# Tampilan Utama: Menampilkan Daftar Laporan + Form Input
+class ReportListView(ListView):
+    model = Report
+    template_name = 'main_app/home.html'
+    context_object_name = 'reports'
+    ordering = ['-created_at']
 
-    # Logika Tampilkan (Read)
-    reports = Report.objects.all().order_by('-created_at')
-    
-    # Render ke home.html (gabungan Lab 2 & Lab 3)
-    return render(request, 'main_app/home.html', {
-        'form': form, 
-        'reports': reports
-    })
+    # Agar form input muncul di atas daftar laporan (seperti di gambar UI-mu)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = ReportForm() 
+        return context
 
-# Opsional: Jika kamu tetap ingin path /add/ sendiri, biarkan fungsi ini ada
-def add_report(request):
-    if request.method == "POST":
-        form = ReportForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('home')
-    else:
-        form = ReportForm()
-    return render(request, 'main_app/home.html', {'form': form})
+# Proses Simpan: Menangani data yang dikirim dari form
+class ReportCreateView(CreateView):
+    model = Report
+    form_class = ReportForm
+    success_url = reverse_lazy('home') # Balik ke halaman utama setelah simpan
+
+# View Pendukung CRUD (Syarat Lab 4) [cite: 172-175]
+class ReportDetailView(DetailView):
+    model = Report
+    template_name = 'main_app/report_detail.html'
+
+class ReportUpdateView(UpdateView):
+    model = Report
+    form_class = ReportForm
+    template_name = 'main_app/report_form.html'
+    success_url = reverse_lazy('home')
+
+class ReportDeleteView(DeleteView):
+    model = Report
+    template_name = 'main_app/report_confirm_delete.html'
+    success_url = reverse_lazy('home')
+
+# View Khusus Update Status (Workflow) [cite: 181-189]
+class ReportUpdateStatusView(View):
+    def post(self, request, pk):
+        report = get_object_or_404(Report, pk=pk)
+        new_status = request.POST.get('status')
+        report.status = new_status
+        report.save()
+        return redirect('home')

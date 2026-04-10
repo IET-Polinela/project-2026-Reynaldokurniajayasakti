@@ -13,9 +13,19 @@
         
         /* Style Tambahan untuk Report */
         .report-section { text-align: left; margin-top: 20px; }
-        form input, form textarea { width: 100%; padding: 8px; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; }
+        form input, form textarea { width: 100%; padding: 8px; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
         .btn { background: #3498db; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; }
-        .item { border-bottom: 1px solid #eee; padding: 10px 0; text-align: left; }
+        .item { border-bottom: 1px solid #eee; padding: 15px 0; text-align: left; }
+
+        /* Style Baru untuk Tombol Status Workflow */
+        .btn-status { background: #27ae60; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 0.8em; margin-top: 5px; }
+        
+        /* Link Judul */
+        .report-title { color: #2c3e50; text-decoration: none; }
+        .report-title:hover { text-decoration: underline; color: #3498db; }
+
+        /* Style tambahan untuk Detail di Home */
+        .report-meta { font-size: 0.8em; color: #7f8c8d; margin: 4px 0; }
     </style>
 </head>
 <body>
@@ -30,7 +40,7 @@
 
         <div class="report-section">
             <h3>📢 Kirim Laporan</h3>
-            <form method="POST">
+            <form method="POST" action="{% url 'add_report' %}">
                 {% csrf_token %}
                 {{ form.as_p }}
                 <button type="submit" class="btn">Simpan Laporan</button>
@@ -41,8 +51,36 @@
             <h3>📋 Daftar Laporan</h3>
             {% for report in reports %}
                 <div class="item">
-                    <strong>{{ report.title }}</strong> - <small>{{ report.status }}</small>
+                    <a href="{% url 'report_detail' report.pk %}" class="report-title">
+                        <strong>{{ report.title }}</strong>
+                    </a> 
+                    - <small>{{ report.get_status_display }}</small>
+                    
+                    <div class="report-meta">
+                        📍 {{ report.location }} | 📂 {{ report.category }}
+                    </div>
+
                     <p style="margin: 5px 0; font-size: 0.9em;">{{ report.description }}</p>
+
+                    {% if report.status == 'REPORTED' %}
+                    <form method="POST" action="{% url 'update_status' report.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="VERIFIED">
+                        <button type="submit" class="btn-status">Verifikasi Laporan</button>
+                    </form>
+                    {% elif report.status == 'VERIFIED' %}
+                    <form method="POST" action="{% url 'update_status' report.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="IN_PROGRESS">
+                        <button type="submit" class="btn-status" style="background:#f39c12;">Mulai Pengerjaan</button>
+                    </form>
+                    {% elif report.status == 'IN_PROGRESS' %}
+                    <form method="POST" action="{% url 'update_status' report.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="RESOLVED">
+                        <button type="submit" class="btn-status" style="background:#2980b9;">Selesaikan</button>
+                    </form>
+                    {% endif %}
                 </div>
             {% empty %}
                 <p>Belum ada laporan.</p>

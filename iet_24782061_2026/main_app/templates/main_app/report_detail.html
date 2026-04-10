@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detail Laporan</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f7f6; }
+        .detail-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 600px; margin: auto; }
+        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; }
+        .label { font-weight: bold; color: #7f8c8d; }
+    </style>
+</head>
+<body>
+    <div class="detail-card">
+        <h1>Detail Laporan: {{ object.title }}</h1>
+        <p><span class="label">Kategori:</span> {{ object.category }}</p>
+        <p><span class="label">Status:</span> {{ object.get_status_display }}</p>
+        <p><span class="label">Lokasi:</span> {{ object.location }}</p>
+        <hr>
+        <p><span class="label">Deskripsi:</span></p>
+        <p>{{ object.description }}</p>
+        <br>
+        <a href="{% url 'home' %}">← Kembali ke Daftar</a>
+    </div>
+</body>
+</html>
