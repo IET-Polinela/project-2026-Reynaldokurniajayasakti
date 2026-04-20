@@ -1,91 +1,94 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - IET Project</title>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; display: flex; justify-content: center; padding: 20px; }
-        .card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 500px; }
-        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
-        .nav-links { margin: 20px 0; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        a { text-decoration: none; color: #3498db; font-weight: bold; margin: 0 10px; transition: 0.3s; }
-        
-        /* Style Tambahan untuk Report */
-        .report-section { text-align: left; margin-top: 20px; }
-        form input, form textarea { width: 100%; padding: 8px; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
-        .btn { background: #3498db; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; }
-        .item { border-bottom: 1px solid #eee; padding: 15px 0; text-align: left; }
+{% extends 'main_app/base.html' %}
+{% load static %}
 
-        /* Style Baru untuk Tombol Status Workflow */
-        .btn-status { background: #27ae60; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 0.8em; margin-top: 5px; }
-        
-        /* Link Judul */
-        .report-title { color: #2c3e50; text-decoration: none; }
-        .report-title:hover { text-decoration: underline; color: #3498db; }
+{% block title %}Home - IET City Reporting{% endblock %}
 
-        /* Style tambahan untuk Detail di Home */
-        .report-meta { font-size: 0.8em; color: #7f8c8d; margin: 4px 0; }
-    </style>
-</head>
-<body>
-    <div class="card">
-        <h1>Selamat Datang di Kabupaten Lamsel</h1> 
-        <p>Aplikasi Utama (<strong>Reynaldo</strong>)</p>
-        
-        <div class="nav-links">
-            <a href="/about/">About</a>
-            <a href="/contacts/">Contacts</a>
-        </div>
-
-        <div class="report-section">
-            <h3>📢 Kirim Laporan</h3>
-            <form method="POST" action="{% url 'add_report' %}">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn">Simpan Laporan</button>
-            </form>
-        </div>
-
-        <div class="report-section">
-            <h3>📋 Daftar Laporan</h3>
-            {% for report in reports %}
-                <div class="item">
-                    <a href="{% url 'report_detail' report.pk %}" class="report-title">
-                        <strong>{{ report.title }}</strong>
-                    </a> 
-                    - <small>{{ report.get_status_display }}</small>
-                    
-                    <div class="report-meta">
-                        📍 {{ report.location }} | 📂 {{ report.category }}
-                    </div>
-
-                    <p style="margin: 5px 0; font-size: 0.9em;">{{ report.description }}</p>
-
-                    {% if report.status == 'REPORTED' %}
-                    <form method="POST" action="{% url 'update_status' report.pk %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="status" value="VERIFIED">
-                        <button type="submit" class="btn-status">Verifikasi Laporan</button>
-                    </form>
-                    {% elif report.status == 'VERIFIED' %}
-                    <form method="POST" action="{% url 'update_status' report.pk %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="status" value="IN_PROGRESS">
-                        <button type="submit" class="btn-status" style="background:#f39c12;">Mulai Pengerjaan</button>
-                    </form>
-                    {% elif report.status == 'IN_PROGRESS' %}
-                    <form method="POST" action="{% url 'update_status' report.pk %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="status" value="RESOLVED">
-                        <button type="submit" class="btn-status" style="background:#2980b9;">Selesaikan</button>
-                    </form>
-                    {% endif %}
-                </div>
-            {% empty %}
-                <p>Belum ada laporan.</p>
-            {% endfor %}
+{% block content %}
+<div class="row mb-5">
+    <div class="col-md-12 text-center">
+        <div class="py-5 px-4 rounded-4 bg-primary text-white shadow">
+            <h1 class="display-5 fw-bold">Selamat Datang di Kabupaten Lamsel</h1>
+            <p class="lead mb-4">Sampaikan aspirasi dan laporan permasalahan kota Anda langsung kepada kami.</p>
+            <div class="d-flex justify-content-center gap-2">
+                <a href="{% url 'report_list' %}" class="btn btn-light btn-lg px-4 rounded-pill shadow-sm">
+                    <i class="bi bi-collection-fill me-2"></i>Lihat Semua Laporan
+                </a>
+                <button class="btn btn-outline-light btn-lg px-4 rounded-pill" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFormLapor" aria-expanded="false" aria-controls="collapseFormLapor">
+                    <i class="bi bi-megaphone me-2"></i>Lapor Sekarang
+                </button>
+            </div>
         </div>
     </div>
-</body>
-</html>
+</div>
+
+<div class="collapse {% if form.errors %}show{% endif %}" id="collapseFormLapor">
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header bg-dark py-3 text-center border-0">
+                    <h4 class="mb-0 text-white fw-bold">
+                        <i class="bi bi-pencil-square me-2 text-warning"></i>Formulir Laporan Baru
+                    </h4>
+                </div>
+                
+                <div class="card-body p-4 p-md-5 bg-white">
+                    <form method="POST" action="{% url 'report_create' %}">
+                        {% csrf_token %}
+                        
+                        {% for field in form %}
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark mb-1">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <small class="text-muted d-block mt-1">{{ field.help_text }}</small>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+
+                        <div class="d-grid mt-5">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill py-3 fw-bold shadow">
+                                <i class="bi bi-send-fill me-2"></i>Kirim Laporan Sekarang
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mt-4 mt-lg-0">
+            <div class="card border-0 bg-light rounded-4 p-4 mb-4 shadow-sm">
+                <h5 class="fw-bold mb-3">Cara Melapor:</h5>
+                <ol class="list-group list-group-flush bg-transparent">
+                    <li class="list-group-item bg-transparent border-0 px-0">
+                        <span class="badge bg-primary rounded-circle me-2">1</span> Isi judul dan kategori masalah.
+                    </li>
+                    <li class="list-group-item bg-transparent border-0 px-0">
+                        <span class="badge bg-primary rounded-circle me-2">2</span> Jelaskan detail kejadian/lokasi.
+                    </li>
+                    <li class="list-group-item bg-transparent border-0 px-0">
+                        <span class="badge bg-primary rounded-circle me-2">3</span> Klik tombol simpan untuk mengirim.
+                    </li>
+                </ol>
+            </div>
+            
+            <div class="text-center p-4 rounded-4 border border-secondary border-dashed">
+                <i class="bi bi-headset fs-1 text-primary mb-3"></i>
+                <h6>Butuh Bantuan Teknis?</h6>
+                <p class="small text-muted">Hubungi tim IT Kabupaten Lamsel jika Anda menemui kendala sistem.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .collapse {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .border-dashed {
+        border-style: dashed !important;
+    }
+</style>
+{% endblock %}

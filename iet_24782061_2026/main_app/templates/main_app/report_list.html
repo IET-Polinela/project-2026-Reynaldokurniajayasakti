@@ -1,20 +1,109 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Daftar Laporan - Smart City</title>
-</head>
-<body>
-    <h1>Laporan Permasalahan Kota</h1>
-    <a href="{% url 'add_report' %}">+ Buat Laporan Baru</a>
-    <hr>
+{% extends 'main_app/base.html' %} 
 
-    {% for report in reports %} <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
-            <h3>{{ report.title }}</h3> <p><strong>Kategori:</strong> {{ report.category }} | <strong>Status:</strong> {{ report.status }}</p>
-            <p>{{ report.description }}</p>
-            <small>Lokasi: {{ report.location }} | Tanggal: {{ report.created_at }}</small>
+{% block title %}Daftar Laporan - IET City{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <p class="breadcrumb-text">
+            <a href="{% url 'home' %}" class="text-decoration-none">Home</a> 
+            <span class="mx-2 text-muted">/</span> 
+            <span class="text-dark fw-medium">Daftar Laporan</span>
+        </p>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-list-ul text-primary"></i> Laporan Permasalahan Kota</h2>
+        <a href="{% url 'home' %}" class="btn btn-success rounded-pill px-4 shadow-sm">
+            <i class="bi bi-plus-circle me-1"></i> Buat Laporan Baru
+        </a>
+    </div>
+
+    <div class="card shadow border-0 rounded-4 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="ps-4 py-3">Judul Laporan</th>
+                            <th class="py-3">Kategori</th>
+                            <th class="py-3">Lokasi</th>
+                            <th class="py-3 text-center">Status</th>
+                            <th class="text-center py-3 pe-4">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report in reports %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="fw-bold text-dark">{{ report.title }}</div>
+                                <small class="text-muted"><i class="bi bi-calendar3 me-1"></i>{{ report.created_at|date:"d M Y" }}</small>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill bg-light text-dark border px-3">{{ report.category }}</span>
+                            </td>
+                            <td>
+                                <i class="bi bi-geo-alt-fill text-danger me-1"></i> {{ report.location }}
+                            </td>
+                            
+                            <td class="text-center">
+                                {% if report.status == 'REPORTED' %}
+                                    <span class="badge bg-secondary rounded-pill px-3 py-2">Reported</span>
+                                {% elif report.status == 'VERIFIED' %}
+                                    <span class="badge bg-primary rounded-pill px-3 py-2">Verified</span>
+                                {% elif report.status == 'IN_PROGRESS' %}
+                                    <span class="badge bg-warning text-dark rounded-pill px-3 py-2">In Progress</span>
+                                {% elif report.status == 'RESOLVED' %}
+                                    <span class="badge bg-success rounded-pill px-3 py-2">Resolved</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="text-center pe-4">
+                                <div class="d-flex justify-content-center align-items-center gap-2">
+                                    <a href="{% url 'report_detail' report.pk %}" class="btn btn-dark btn-sm" title="Lihat Detail">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+
+                                    <form action="{% url 'update_status' report.pk %}" method="POST" style="display: inline;">
+                                        {% csrf_token %}
+                                        {% if report.status == 'REPORTED' %}
+                                            <button type="submit" class="btn btn-primary btn-sm px-3">Verifikasi</button>
+                                        {% elif report.status == 'VERIFIED' %}
+                                            <button type="submit" class="btn btn-warning btn-sm px-3 text-dark">Proses</button>
+                                        {% elif report.status == 'IN_PROGRESS' %}
+                                            <button type="submit" class="btn btn-success btn-sm px-3">Selesaikan</button>
+                                        {% endif %}
+                                    </form>
+                                    
+                                    <a href="{% url 'report_edit' report.pk %}" class="btn btn-info btn-sm text-white px-3">Edit</a>
+                                    <a href="{% url 'report_delete' report.pk %}" class="btn btn-danger btn-sm px-3">Hapus</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div class="py-4">
+                                    <i class="bi bi-clipboard-x display-1 text-muted opacity-25"></i>
+                                    <h4 class="fw-bold text-dark mt-3">Belum ada laporan</h4>
+                                    <p class="text-muted">Jadilah yang pertama melaporkan permasalahan kota.</p>
+                                    <a href="{% url 'home' %}" class="btn btn-primary rounded-pill px-4 mt-2">
+                                        <i class="bi bi-plus-lg me-1"></i> Tambah Laporan
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
-    {% empty %}
-        <p>Belum ada laporan yang masuk.</p>
-    {% endfor %}
-</body>
-</html>
+    </div>
+</div>
+
+<style>
+    .breadcrumb-text { font-size: 0.95rem; }
+    .breadcrumb-text a { color: #0d6efd; }
+    .breadcrumb-text a:hover { text-decoration: underline !important; }
+</style>
+{% endblock %}

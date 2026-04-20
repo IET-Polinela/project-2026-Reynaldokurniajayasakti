@@ -1,24 +1,70 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact - IET Project</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #2c3e50; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .contact-box { background: #34495e; padding: 40px; border-radius: 20px; text-align: center; border: 1px solid #465c71; }
-        h1 { margin-bottom: 20px; color: #1abc9c; }
-        .info { margin-bottom: 10px; font-size: 1.1em; }
-        .home-link { color: #1abc9c; text-decoration: none; border: 1px solid #1abc9c; padding: 5px 15px; border-radius: 20px; }
-    </style>
-</head>
-<body>
-    <div class="contact-box">
-        <h1>Hubungi Kami</h1>
-        <div class="info">📧 Email: 24782061@student.polinela.ac.id</div>
-        <div class="info">📍 Lokasi: Lab IET Polinela</div>
-        <br><br>
-        <a href="/" class="home-link">Beranda</a>
+{% extends 'main_app/base.html' %}
+
+{% block title %}Hubungi Kami - IET City{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <p class="breadcrumb-text">
+            <a href="{% url 'home' %}" class="text-decoration-none">Home</a> 
+            <span class="mx-2 text-muted">/</span> 
+            <span class="text-dark fw-medium">Hubungi Kami</span>
+        </p>
+    </nav>
+
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6">
+            <div class="card shadow border-0 rounded-4 overflow-hidden text-center">
+                <div class="card-header bg-dark py-3">
+                    <h3 class="text-white fw-bold mb-0">Hubungi Kami</h3>
+                </div>
+                <div class="card-body p-5">
+                    <div class="mb-4">
+                        <i class="bi bi-envelope-paper-fill display-3 text-primary"></i>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h5 class="fw-bold text-dark mb-1">Email Resmi</h5>
+                        <p class="text-muted">24782061@student.polinela.ac.id</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5 class="fw-bold text-dark mb-1">Lokasi</h5>
+                        <p class="text-muted"><i class="bi bi-geo-alt-fill text-danger"></i> Lab IET Polinela</p>
+                    </div>
+
+                    <hr class="my-4 opacity-25">
+
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'home' %}" class="btn btn-outline-primary rounded-pill px-4">
+                            <i class="bi bi-house-door me-2"></i>Kembali ke Beranda
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</body>
-</html>
+</div>
+
+<style>
+    /* Styling Breadcrumb konsisten dengan halaman Report List */
+    .breadcrumb-text { 
+        font-size: 0.95rem; 
+        margin-bottom: 0;
+    }
+    .breadcrumb-text a { 
+        color: #0d6efd; 
+    }
+    .breadcrumb-text a:hover { 
+        text-decoration: underline !important; 
+    }
+
+    /* Penyesuaian Card agar terlihat modern */
+    .card {
+        transition: transform 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+{% endblock %}
