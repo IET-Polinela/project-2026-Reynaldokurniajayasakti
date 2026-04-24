@@ -13,6 +13,7 @@
                 <a href="{% url 'report_list' %}" class="btn btn-light btn-lg px-4 rounded-pill shadow-sm">
                     <i class="bi bi-collection-fill me-2"></i>Lihat Semua Laporan
                 </a>
+                
                 <button class="btn btn-outline-light btn-lg px-4 rounded-pill" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFormLapor" aria-expanded="false" aria-controls="collapseFormLapor">
                     <i class="bi bi-megaphone me-2"></i>Lapor Sekarang
                 </button>
@@ -79,6 +80,16 @@
                 <h6>Butuh Bantuan Teknis?</h6>
                 <p class="small text-muted">Hubungi tim IT Kabupaten Lamsel jika Anda menemui kendala sistem.</p>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center mb-5">
+    <div class="col-md-8 text-center">
+        <div class="alert alert-info rounded-4 shadow-sm py-4">
+            <i class="bi bi-info-circle-fill fs-2 mb-2 d-block text-primary"></i>
+            <h5>Halo, {{ user.username }}</h5>
+            <p class="mb-0 text-muted">Anda masuk sebagai <strong>{% if user.is_admin %}Admin{% else %}Citizen{% endif %}</strong>.</p>
         </div>
     </div>
 </div>

@@ -14,9 +14,12 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold"><i class="bi bi-list-ul text-primary"></i> Laporan Permasalahan Kota</h2>
+        
+        {% if user.is_admin %}
         <a href="{% url 'home' %}" class="btn btn-success rounded-pill px-4 shadow-sm">
             <i class="bi bi-plus-circle me-1"></i> Buat Laporan Baru
         </a>
+        {% endif %}
     </div>
 
     <div class="card shadow border-0 rounded-4 overflow-hidden">
@@ -64,35 +67,28 @@
                                         <i class="bi bi-eye"></i>
                                     </a>
 
-                                    <form action="{% url 'update_status' report.pk %}" method="POST" style="display: inline;">
-                                        {% csrf_token %}
-                                        {% if report.status == 'REPORTED' %}
-                                            <button type="submit" class="btn btn-primary btn-sm px-3">Verifikasi</button>
-                                        {% elif report.status == 'VERIFIED' %}
-                                            <button type="submit" class="btn btn-warning btn-sm px-3 text-dark">Proses</button>
-                                        {% elif report.status == 'IN_PROGRESS' %}
-                                            <button type="submit" class="btn btn-success btn-sm px-3">Selesaikan</button>
-                                        {% endif %}
-                                    </form>
-                                    
-                                    <a href="{% url 'report_edit' report.pk %}" class="btn btn-info btn-sm text-white px-3">Edit</a>
-                                    <a href="{% url 'report_delete' report.pk %}" class="btn btn-danger btn-sm px-3">Hapus</a>
+                                    {% if user.is_admin %}
+                                        <form action="{% url 'update_status' report.pk %}" method="POST" style="display: inline;">
+                                            {% csrf_token %}
+                                            {% if report.status == 'REPORTED' %}
+                                                <button type="submit" class="btn btn-primary btn-sm px-3">Verifikasi</button>
+                                            {% elif report.status == 'VERIFIED' %}
+                                                <button type="submit" class="btn btn-warning btn-sm px-3 text-dark">Proses</button>
+                                            {% elif report.status == 'IN_PROGRESS' %}
+                                                <button type="submit" class="btn btn-success btn-sm px-3">Selesaikan</button>
+                                            {% endif %}
+                                        </form>
+                                        
+                                        <a href="{% url 'report_edit' report.pk %}" class="btn btn-info btn-sm text-white px-3">Edit</a>
+                                        <a href="{% url 'report_delete' report.pk %}" class="btn btn-danger btn-sm px-3">Hapus</a>
+                                    {% else %}
+                                        <span class="text-muted small">Read Only</span>
+                                    {% endif %}
                                 </div>
                             </td>
                         </tr>
                         {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center py-5">
-                                <div class="py-4">
-                                    <i class="bi bi-clipboard-x display-1 text-muted opacity-25"></i>
-                                    <h4 class="fw-bold text-dark mt-3">Belum ada laporan</h4>
-                                    <p class="text-muted">Jadilah yang pertama melaporkan permasalahan kota.</p>
-                                    <a href="{% url 'home' %}" class="btn btn-primary rounded-pill px-4 mt-2">
-                                        <i class="bi bi-plus-lg me-1"></i> Tambah Laporan
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
+                        <tr><td colspan="5" class="text-center py-4 text-muted">Belum ada laporan.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -100,10 +96,4 @@
         </div>
     </div>
 </div>
-
-<style>
-    .breadcrumb-text { font-size: 0.95rem; }
-    .breadcrumb-text a { color: #0d6efd; }
-    .breadcrumb-text a:hover { text-decoration: underline !important; }
-</style>
 {% endblock %}
