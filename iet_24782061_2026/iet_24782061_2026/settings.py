@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     
     # App Baru Lab Session 6
     'usermanagement_24782061',
+
+    # App Baru Lab Session 7
+    'dashboard_24782061', # <--- Tambahkan baris ini
 ]
 
 MIDDLEWARE = [
@@ -59,10 +62,10 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         # Di settings.py cari bagian TEMPLATES
         'DIRS': [
-    BASE_DIR / 'templates', 
-    BASE_DIR / 'usermanagement_24782061',
-    BASE_DIR / 'main_app' / 'templates', # <--- Tambahkan baris ini
-],
+            BASE_DIR / 'templates', 
+            BASE_DIR / 'usermanagement_24782061',
+            BASE_DIR / 'main_app' / 'templates', 
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

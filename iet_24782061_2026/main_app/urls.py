@@ -13,4 +13,8 @@ urlpatterns = [
     path('report/<int:pk>/edit/', views.ReportUpdateView.as_view(), name='report_edit'),
     path('report/<int:pk>/delete/', views.ReportDeleteView.as_view(), name='report_delete'),
     path('report/<int:pk>/status/', views.ReportUpdateStatusView.as_view(), name='update_status'),
+
+    # URL Tambahan untuk Fetch API (Lab 7)
+    path('search/', views.report_search, name='report_search'),
+    path('api/detail/<int:pk>/', views.report_detail_api, name='report_detail_api'),
 ]

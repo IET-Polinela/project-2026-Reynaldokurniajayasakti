@@ -1,0 +1,115 @@
+{% extends 'main_app/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">Dashboard Statistik Laporan</h2>
+
+    <div class="row">
+        <!-- Grafik Doughnut untuk Status -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">Distribusi Status Laporan</div>
+                <div class="card-body">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grafik Bar untuk Kategori -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">Jumlah Laporan per Kategori</div>
+                <div class="card-body">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- 5 Laporan Terbaru -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-info text-white">5 Laporan Masuk Terakhir</div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush" id="recentReported"></ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5 Laporan Selesai Terbaru -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-warning text-dark">5 Laporan Selesai Terakhir</div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush" id="recentResolved"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Load Chart.js dari CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('/dashboard/api/stats/')
+            .then(response => response.json())
+            .then(data => {
+                // 1. Render Status Chart
+                const ctxStatus = document.getElementById('statusChart').getContext('2d');
+                new Chart(ctxStatus, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.status_labels,
+                        datasets: [{
+                            data: data.status_data,
+                            backgroundColor: ['#17a2b8', '#007bff', '#28a745', '#ffc107']
+                        }]
+                    }
+                });
+
+                // 2. Render Category Chart
+                const ctxCategory = document.getElementById('categoryChart').getContext('2d');
+                new Chart(ctxCategory, {
+                    type: 'bar',
+                    data: {
+                        labels: data.category_labels,
+                        datasets: [{
+                            label: 'Jumlah Laporan',
+                            data: data.category_data,
+                            backgroundColor: '#6610f2'
+                        }]
+                    },
+                    options: {
+                        scales: { y: { beginAtZero: true } }
+                    }
+                });
+
+                // 3. Isi Tabel Laporan Terbaru
+                const listReported = document.getElementById('recentReported');
+                data.recent_reported.forEach(item => {
+                    listReported.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">${item.title}</div>
+                            <small>${item.category}</small>
+                        </div>
+                    </li>`;
+                });
+
+                // 4. Isi Tabel Laporan Selesai
+                const listResolved = document.getElementById('recentResolved');
+                data.recent_resolved.forEach(item => {
+                    listResolved.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">${item.title}</div>
+                            <span class="badge bg-success rounded-pill">${item.status}</span>
+                        </div>
+                    </li>`;
+                });
+            })
+            .catch(error => console.error('Error fetching stats:', error));
+    });
+</script>
+{% endblock %}

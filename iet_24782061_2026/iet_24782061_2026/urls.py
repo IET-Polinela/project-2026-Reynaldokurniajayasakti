@@ -9,14 +9,15 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     
     # --- AUTHENTICATION & REGISTRATION SYSTEM (LAB 6) ---
-    # Menggunakan MyLoginView dan MyLogoutView agar muncul pesan "Selamat Datang" dan "Berhasil Keluar"
     path('login/', MyLoginView.as_view(), name='login'),
     path('logout/', MyLogoutView.as_view(), name='logout'),
-    
     path('register/', user_views.register, name='register'),
     # ----------------------------------------------------
 
     path('', include('main_app.urls')),           
     path('about/', include('about.urls')),        
     path('contacts/', include('contacts.urls')),  
+    
+    # --- DASHBOARD SYSTEM (LAB 7) ---
+    path('dashboard/', include('dashboard_24782061.urls')), # <--- Penambahan rute Dashboard
 ]
