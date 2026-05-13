@@ -14,10 +14,15 @@ urlpatterns = [
     path('register/', user_views.register, name='register'),
     # ----------------------------------------------------
 
+    # --- API SYSTEM (LAB 9) ---
+    # Menghubungkan rute API dengan prefix 'api/'
+    path('api/', include('main_app.api_urls')), # 
+    # --------------------------
+
     path('', include('main_app.urls')),           
     path('about/', include('about.urls')),        
     path('contacts/', include('contacts.urls')),  
     
     # --- DASHBOARD SYSTEM (LAB 7) ---
-    path('dashboard/', include('dashboard_24782061.urls')), # <--- Penambahan rute Dashboard
+    path('dashboard/', include('dashboard_24782061.urls')), 
 ]

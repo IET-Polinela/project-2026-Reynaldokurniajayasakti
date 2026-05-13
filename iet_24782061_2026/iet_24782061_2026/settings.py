@@ -42,7 +42,10 @@ INSTALLED_APPS = [
     'usermanagement_24782061',
 
     # App Baru Lab Session 7
-    'dashboard_24782061', # <--- Tambahkan baris ini
+    'dashboard_24782061', 
+
+    # App Baru Lab Session 9
+    'rest_framework', # <--- Tambahkan baris ini sesuai instruksi lab [cite: 29]
 ]
 
 MIDDLEWARE = [
