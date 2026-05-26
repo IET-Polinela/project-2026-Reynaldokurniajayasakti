@@ -45,7 +45,10 @@ INSTALLED_APPS = [
     'dashboard_24782061', 
 
     # App Baru Lab Session 9
-    'rest_framework', # <--- Tambahkan baris ini sesuai instruksi lab [cite: 29]
+    'rest_framework', 
+
+    # App Baru Lab Session 10 (JWT Authentication)
+    'rest_framework_simplejwt', 
 ]
 
 MIDDLEWARE = [
@@ -63,7 +66,6 @@ ROOT_URLCONF = 'iet_24782061_2026.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # Di settings.py cari bagian TEMPLATES
         'DIRS': [
             BASE_DIR / 'templates', 
             BASE_DIR / 'usermanagement_24782061',
@@ -89,7 +91,7 @@ WSGI_APPLICATION = 'iet_24782061_2026.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'smartcity_db_new',
+        'NAME': 'smartcity_new',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': '127.0.0.1',
@@ -128,5 +130,19 @@ AUTH_USER_MODEL = 'usermanagement_24782061.User'
 
 # Pengaturan Redirect Autentikasi
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'home'  # Arahkan ke halaman utama setelah login sukses
-LOGOUT_REDIRECT_URL = 'login' # Arahkan ke login setelah logout
+LOGIN_REDIRECT_URL = 'home'  
+LOGOUT_REDIRECT_URL = 'login' 
+
+# ==========================================================
+# KONFIGURASI DJANGO REST FRAMEWORK & JWT (LAB SESSION 10)
+# ==========================================================
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',  # <--- Tambahan agar bisa Login via Browser
+    ),
+}
