@@ -49,9 +49,14 @@ INSTALLED_APPS = [
 
     # App Baru Lab Session 10 (JWT Authentication)
     'rest_framework_simplejwt', 
+
+    # App Baru Lab Session 11 (CORS Headers)
+    'corsheaders', 
 ]
 
 MIDDLEWARE = [
+    # CorsMiddleware WAJIB diletakkan paling atas sebelum middleware lainnya
+    'corsheaders.middleware.CorsMiddleware', 
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -91,7 +96,7 @@ WSGI_APPLICATION = 'iet_24782061_2026.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'smartcity_new',
+        'NAME': 'smartcity_db_new',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': '127.0.0.1',
@@ -146,3 +151,8 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',  # <--- Tambahan agar bisa Login via Browser
     ),
 }
+
+# ==========================================================
+# KONFIGURASI CORS SETTINGS (LAB SESSION 11)
+# ==========================================================
+CORS_ALLOW_ALL_ORIGINS = True # Mengizinkan semua domain untuk mengakses API
