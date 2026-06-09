@@ -1,11 +1,22 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination  # <-- TAMBAHAN LAB 12: Import Pagination
 from .models import Report
 from .serializers import ReportSerializer
 from .permissions import IsOwnerAndDraftOrReadOnly
 
+# =====================================================================
+# TAMBAHAN LAB 12: Konfigurasi Server-Side Pagination (page_size = 10)
+# =====================================================================
+class ReportPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+
 class ReportViewSet(viewsets.ModelViewSet):
     serializer_class = ReportSerializer
+    pagination_class = ReportPagination  # <-- TAMBAHAN LAB 12: Daftarkan Paginasi Kustom
 
     def get_permissions(self):
         """
@@ -17,25 +28,41 @@ class ReportViewSet(viewsets.ModelViewSet):
             return [permissions.IsAuthenticated(), IsOwnerAndDraftOrReadOnly()]
         return [permissions.IsAuthenticated()]
 
+    # =====================================================================
+    # PERUBAHAN LAB 12: Server-Side Filtering & Sorting
+    # =====================================================================
     def get_queryset(self):
         """
-        Meng-override get_queryset untuk implementasi penyaringan data (Sesuai Aturan Proyektor):
-        - BARIS 6: Admin ==> exclude DRAFT (Admin hanya melihat laporan yang sudah dipublikasikan/submit).
-        - BARIS 7-8: Citizen ==> Melihat semua laporan berstatus 'PUBLISHED' + Laporan milik dia sendiri (walau masih DRAFT).
+        Meng-override get_queryset untuk implementasi optimasi API (Lab 12):
+        - Sorting: Otomatis mengurutkan data dari pembaruan terbaru (-updated_at).
+        - Server Side Filtering: Memisahkan state data via parameter kueri URL (?tab=...)
         """
         user = self.request.user
         
         # Pengamanan jika user belum terautentikasi (fall-back)
         if not user.is_authenticated:
-            return Report.objects.filter(status='PUBLISHED')
+            return Report.objects.filter(status='PUBLISHED').order_by('-updated_at')
 
-        # ATURAN 1 (Admin): Sembunyikan semua yang berstatus DRAFT
-        if user.is_staff:
-            return Report.objects.exclude(status='DRAFT')
+        # Ambil parameter ?tab= dari URL query string (default ke 'feed' jika kosong)
+        tab = self.request.query_params.get('tab', 'feed')
 
-        # ATURAN 2 (Citizen): Laporan PUBLISHED umum + Laporan buatan sendiri.
-        # Menambahkan .distinct() untuk mencegah duplikasi atau persistensi cache evaluasi query di MySQL
-        return (Report.objects.filter(status='PUBLISHED') | Report.objects.filter(reporter=user)).distinct()
+        # Aturan Sorting Lab 12: Pastikan data dasar terurut dari yang terbaru berdasarkan waktu diperbarui
+        base_queryset = Report.objects.all().order_by('-updated_at')
+
+        # OPSI 1: Jika ?tab=my_reports -> Kembalikan HANYA laporan milik user yang sedang login
+        if tab == 'my_reports':
+            return base_queryset.filter(reporter=user)
+        
+        # OPSI 2: Jika ?tab=feed -> Kembalikan linimasa sosial publik (Feed Kota)
+        elif tab == 'feed':
+            # Aturan Admin: Sembunyikan semua yang berstatus DRAFT
+            if user.is_staff:
+                return base_queryset.exclude(status='DRAFT')
+            
+            # Aturan Citizen: Laporan warga lain yang BUKAN DRAFT + Laporan milik sendiri (termasuk drafnya)
+            return (base_queryset.exclude(status='DRAFT').exclude(reporter=user) | base_queryset.filter(reporter=user)).distinct()
+
+        return base_queryset
 
     def perform_create(self, serializer):
         """

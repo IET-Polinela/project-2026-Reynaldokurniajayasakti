@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings # Diperlukan untuk relasi ke Custom User Model
 
 # 1. Konstanta STATUS_CHOICES
-# Menambahkan nilai "DRAFT" sesuai instruksi Lab 9 [cite: 30, 40]
+# Menambahkan nilai "DRAFT" sesuai instruksi Lab 9
 STATUS_CHOICES = [
     ('DRAFT', 'Draft'),
     ('REPORTED', 'Reported'),
@@ -13,9 +13,11 @@ STATUS_CHOICES = [
 
 # 2. Class Report
 class Report(models.Model):
+    # Menambahkan 'Kebersihan' agar sesuai dengan pilihan form frontend
     CATEGORY_CHOICES = [
         ('Infrastruktur', 'Infrastruktur'),
         ('Keamanan', 'Keamanan'),
+        ('Kebersihan', 'Kebersihan'),  # <--- Pilihan Baru Tambahan
         ('Kesehatan', 'Kesehatan'),
         ('Lainnya', 'Lainnya'),
     ]
@@ -31,8 +33,8 @@ class Report(models.Model):
     description = models.TextField()
     location = models.CharField(max_length=200)
 
-    # Tambahkan field reporter berupa ForeignKey ke CustomUser [cite: 31, 50, 51]
-    # Menggunakan settings.AUTH_USER_MODEL agar sesuai dengan konfigurasi di settings.py [cite: 31, 52]
+    # Tambahkan field reporter berupa ForeignKey ke CustomUser
+    # Menggunakan settings.AUTH_USER_MODEL agar sesuai dengan konfigurasi di settings.py
     reporter = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -47,7 +49,7 @@ class Report(models.Model):
         default='REPORTED'
     )
     
-    # Menambahkan field created_at dan updated_at [cite: 33, 64, 65]
+    # Menambahkan field created_at dan updated_at
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

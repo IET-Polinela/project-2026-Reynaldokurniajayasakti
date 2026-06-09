@@ -1,104 +1,218 @@
-// 1. Definisi template komponen HTML untuk setiap rute halaman (menggunakan backtick `)
-const routes = {
-    '#login': `
-        <div class="row justify-content-center mt-5">
-            <div class="col-md-4 card shadow-sm border-0 p-4">
-                <h4 class="text-center fw-bold mb-4">Login Warga</h4>
-                <form id="loginForm">
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Username</label>
-                        <input type="text" id="loginUsername" class="form-control" placeholder="Masukkan username" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Password</label>
-                        <input type="password" id="loginPassword" class="form-control" placeholder="Masukkan password" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100 fw-bold py-2">
-                        <i class="bi bi-box-arrow-in-right me-2"></i>Masuk
-                    </button>
-                </form>
-            </div>
-        </div>
-    `,
-    '#dashboard': `
-        <div class="row g-4">
-            <aside class="col-12 col-lg-3">
-                <div class="card border-0 p-3 shadow-sm sticky-top" style="top: 20px;">
-                    <button class="btn btn-primary btn-lg w-100 fw-bold mb-3 shadow-sm">
+// js/router.js
+
+function handleRouting() {
+    const hash = window.location.hash || '#login';
+    const appContent = document.getElementById('app-content');
+
+    // Jaga-jaga kalau elemen utama belum ke-render di DOM
+    if (!appContent) {
+        console.error("Elemen #app-content tidak ditemukan!");
+        return;
+    }
+
+    // PROTEKSI RUTE SPA: Ambil token JWT dari localStorage
+    const token = localStorage.getItem('access_token');
+    
+    // Jika tidak ada token dan mencoba masuk ke dashboard, tendang kembali ke login
+    if (!token && hash === '#dashboard') {
+        console.warn("Akses ditolak: Token tidak ditemukan. Mengalihkan ke #login...");
+        window.location.hash = '#login';
+        return;
+    }
+
+    // Jika sudah punya token tetapi malah mengakses halaman login, alihkan langsung ke dashboard
+    if (token && hash === '#login') {
+        window.location.hash = '#dashboard';
+        return;
+    }
+
+    console.log("Rute aktif saat ini:", hash);
+
+    if (hash === '#dashboard') {
+        // 1. Suntikkan HTML Dashboard secara utuh (Sudah ditambah tombol Logout)
+        appContent.innerHTML = `
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <button type="button" class="btn btn-primary w-100 mb-3 fw-bold py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#reportModal">
                         <i class="bi bi-plus-circle-fill me-2"></i>Laporan Baru
                     </button>
-                    <div class="list-group list-group-flush small">
-                        <a href="#dashboard" class="list-group-item list-group-item-action active border-0 rounded p-2 mb-1">
-                            <i class="bi bi-grid-1x2-fill me-2"></i>Semua Laporan
-                        </a>
+                    
+                    <div class="list-group shadow-sm mb-3">
+                        <button type="button" id="tab-feed" class="list-group-item list-group-item-action active">
+                            <i class="bi bi-rss-fill me-2"></i>Feed Kota (Semua)
+                        </button>
+                        <button type="button" id="tab-my-reports" class="list-group-item list-group-item-action">
+                            <i class="bi bi-person-bounding-box me-2"></i>Laporan Saya
+                        </button>
+                        <button type="button" id="btn-logout" class="list-group-item list-group-item-action text-danger fw-bold">
+                            <i class="bi bi-box-arrow-left me-2"></i>Keluar / Logout
+                        </button>
+                    </div>
+
+                    <div class="card shadow-sm border-0 small">
+                        <div class="card-body p-3">
+                            <h6 class="fw-bold mb-3 text-muted">Status Laporan Saya</h6>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span><i class="bi bi-file-earmark-text text-warning me-2"></i>Draft</span>
+                                <span id="sidebar-draft-count" class="badge bg-warning text-dark rounded-pill">0</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span><i class="bi bi-gear-wide-connected text-info me-2"></i>Diproses</span>
+                                <span id="sidebar-progress-count" class="badge bg-info rounded-pill">0</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span><i class="bi bi-check-circle-fill text-success me-2"></i>Selesai</span>
+                                <span id="sidebar-resolved-count" class="badge bg-success rounded-pill">0</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </aside>
 
-            <section class="col-12 col-lg-6">
-                <div class="card border-0 p-5 shadow-sm text-center text-muted border-dashed bg-white">
-                    <i class="bi bi-inbox-fill text-primary display-3 mb-3"></i>
-                    <h5 class="fw-bold text-dark">Selamat Datang di Portal Citizen!</h5>
-                    <p class="small text-secondary">Koneksi API untuk memuat dan memanipulasi data laporan riil akan kita implementasikan secara penuh pada Lab 12.</p>
+                <div class="col-md-6 mb-4">
+                    <div id="report-container" class="w-100"></div>
+                    <div id="paginationContainer"></div>
                 </div>
-            </section>
 
-            <aside class="col-lg-3 d-none d-lg-block">
-                <div class="card border-0 p-3 shadow-sm sticky-top" style="top: 20px;">
-                    <h6 class="fw-bold border-b pb-2 mb-3">
-                        <i class="bi bi-info-circle-fill text-primary me-2"></i>Informasi Wilayah
-                    </h6>
-                    <p class="small text-muted mb-0">Belum ada pengumuman atau data statistik terbaru untuk wilayah koordinat Anda saat ini.</p>
+                <div class="col-md-3">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body">
+                            <h6 class="fw-bold text-dark"><i class="bi bi-info-circle-fill text-primary me-2"></i>Informasi Wilayah</h6>
+                            <p class="text-muted small mt-2 mb-0">Menampilkan data laporan real-time yang tersinkronisasi langsung dengan server Django Port 8000.</p>
+                        </div>
+                    </div>
                 </div>
-            </aside>
-        </div>
-    `
-};
+            </div>
 
-// 2. Fungsi pengendali navigasi dinamis (Routing Engine)
-function handleRouting() {
-    const hash = window.location.hash || '#login'; // Fallback otomatis ke halaman login jika kosong
-    const appContent = document.getElementById('app-content');
-    const navMenus = document.getElementById('nav-menus');
-    
-    // Render tampilan halaman berdasarkan hash URL saat ini
-    if (appContent) {
-        appContent.innerHTML = routes[hash] || routes['#login'];
-    }
+            <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow">
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title fw-bold" id="reportModalLabel"><i class="bi bi-pencil-square me-2"></i>Buat Laporan Baru</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="reportForm">
+                                <div class="mb-3">
+                                    <label for="reportTitle" class="form-label small fw-bold">Judul Masalah / Laporan</label>
+                                    <input type="text" class="form-control form-control-sm" id="reportTitle" required placeholder="Contoh: Jalan Berlubang di Dekat Kampus Polinela">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="reportCategory" class="form-label small fw-bold">Kategori Fasilitas</label>
+                                    <select class="form-select form-select-sm" id="reportCategory" required>
+                                        <option value="" disabled selected>-- Pilih Kategori --</option>
+                                        <option value="Infrastruktur">Infrastruktur</option>
+                                        <option value="Keamanan">Keamanan</option>
+                                        <option value="Kebersihan">Kebersihan</option>
+                                        <option value="Lainnya">Lainnya</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="reportLocation" class="form-label small fw-bold">Lokasi Kejadian</label>
+                                    <input type="text" class="form-control form-control-sm" id="reportLocation" required placeholder="Nama jalan, RT/RW, atau titik koordinat GPS">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="reportDescription" class="form-label small fw-bold">Deskripsi Kronologi Lengkap</label>
+                                    <textarea class="form-control form-control-sm" id="reportDescription" rows="4" required placeholder="Jelaskan secara rinci kondisi masalah di lapangan..."></textarea>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer bg-light py-2">
+                            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="button" id="btn-save-draft" class="btn btn-sm btn-warning fw-bold text-dark">Simpan sebagai Draft</button>
+                            <button type="button" id="btn-submit-report" class="btn btn-sm btn-primary fw-bold">Kirim Laporan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
 
-    // Kelola komponen navbar secara dinamis berdasarkan status halaman dengan pengaman pemeriksaan elemen DOM
-    if (hash === '#dashboard') {
-        if (navMenus) {
-            // Tampilkan tombol logout hanya jika berada di dalam dashboard portal
-            navMenus.innerHTML = `
-                <button id="logoutBtn" class="btn btn-danger btn-sm fw-bold px-3">
-                    <i class="bi bi-box-arrow-left me-2"></i>Keluar
-                </button>
-            `;
+        // Hubungkan Event Listener & Fungsi Pemuat Data Django secara dinamis
+        try {
+            const tFeed = document.getElementById('tab-feed');
+            const tMy = document.getElementById('tab-my-reports');
+            if (tFeed) tFeed.addEventListener('click', () => { if (typeof switchTab === 'function') switchTab('feed'); });
+            if (tMy) tMy.addEventListener('click', () => { if (typeof switchTab === 'function') switchTab('my_reports'); });
+
+            // Event Listener untuk Tombol Logout Baru
+            const btnLogout = document.getElementById('btn-logout');
+            if (btnLogout) {
+                btnLogout.addEventListener('click', () => {
+                    // Bersihkan token dari penyimpanan browser
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('refresh_token');
+                    console.log("Token dihapus. Berhasil keluar dari sesi.");
+                    
+                    // Alihkan ke rute login secara instan
+                    window.location.hash = '#login';
+                });
+            }
+
+            // Hubungkan tombol aksi simpan modal (Draft vs Kirim)
+            const btnDraft = document.getElementById('btn-save-draft');
+            const btnSubmit = document.getElementById('btn-submit-report');
+            
+            if (btnDraft && typeof submitReportForm === 'function') {
+                btnDraft.addEventListener('click', () => submitReportForm('DRAFT'));
+            }
+            if (btnSubmit && typeof submitReportForm === 'function') {
+                btnSubmit.addEventListener('click', () => submitReportForm('REPORTED'));
+            }
+
+            // Jalankan pemuatan komponen data utama
+            if (typeof loadDashboardData === 'function') {
+                loadDashboardData('feed', 1);
+            }
+        } catch (err) {
+            console.warn("Fungsi inisialisasi data dashboard menanti kesiapan js/app.js:", err);
         }
-        
-        // Pasang event listener untuk menangani fungsi pembersihan token saat logout
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', function() {
-                localStorage.clear(); // Bersihkan tokens dari memori lokal browser
-                alert('Anda telah keluar dari sistem.');
-                window.location.hash = '#login'; // Pindahkan ke halaman login
-            });
+
+    } else if (hash === '#login') {
+        // 2. Suntikkan HTML Form Login secara paksa dengan ID yang SINKRON ke auth.js
+        appContent.innerHTML = `
+            <div class="row justify-content-center align-items-center" style="min-height: 70vh; width: 100%; margin: 0;">
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 rounded-3">
+                        <div class="card-body p-4">
+                            <div class="text-center mb-4">
+                                <i class="bi bi-shield-lock-fill text-primary" style="font-size: 3rem;"></i>
+                                <h4 class="fw-bold mt-2">Masuk ke Portal</h4>
+                                <p class="text-muted small">Gunakan akun warga atau admin Anda</p>
+                            </div>
+                            <div id="login-alert"></div>
+                            <form id="loginForm">
+                                <div class="mb-3">
+                                    <label for="loginUsername" class="form-label small fw-bold">Username</label>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
+                                        <input type="text" class="form-control border-start-0" id="loginUsername" placeholder="Masukkan username" required>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="loginPassword" class="form-label small fw-bold">Password</label>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
+                                        <input type="password" class="form-control border-start-0" id="loginPassword" placeholder="Masukkan password" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 btn-sm fw-bold py-2 shadow-sm" id="btnLogin">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i>Masuk
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // LANGSUNG PREPARE DAN AKTIFKAN LISTENER LOGIN DARI AUTH.JS
+        if (typeof setupLoginForm === 'function') {
+            setupLoginForm();
         }
     } else {
-        if (navMenus) {
-            // Kosongkan navbar kanan jika pengguna berada di halaman luar (login)
-            navMenus.innerHTML = '';
-        }
-    }
-
-    // Inisialisasi ulang event listener formulir jika rute mengarah ke halaman login
-    if (hash === '#login' && typeof setupLoginForm === 'function') {
-        setupLoginForm();
+        window.location.hash = '#login';
     }
 }
 
-// 3. Daftarkan fungsi ke event listener bawaan browser global
+// Jalankan perutean global browser
 window.addEventListener('hashchange', handleRouting);
 window.addEventListener('DOMContentLoaded', handleRouting);
