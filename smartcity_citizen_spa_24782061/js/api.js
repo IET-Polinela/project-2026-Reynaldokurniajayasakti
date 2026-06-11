@@ -1,5 +1,5 @@
 // js/api.js
-const BASE_URL = 'http://127.0.0.1:8000'; // Alamat server backend Django
+const BASE_URL = 'http://103.151.63.71:8004'; // Alamat server backend Django
 
 /**
  * Fungsi utilitas global untuk melakukan request HTTP ke Django REST API dengan Interseptor JWT
