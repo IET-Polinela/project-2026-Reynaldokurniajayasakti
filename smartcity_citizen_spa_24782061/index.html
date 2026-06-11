@@ -26,11 +26,11 @@
 
     <main class="container-fluid px-4 mt-4 spa-container" id="app-content"></main>
 
-
     <template id="login-template">
         <div class="row justify-content-center align-items-center" style="min-height: 70vh;">
             <div class="col-md-4">
-                <div class="card shadow-sm border-0 rounded-3">
+                
+                <div class="card shadow-sm border-0 rounded-3" id="login-container">
                     <div class="card-body p-4">
                         <div class="text-center mb-4">
                             <i class="bi bi-shield-lock-fill text-primary" style="font-size: 3rem;"></i>
@@ -40,29 +40,72 @@
                         <div id="login-alert"></div>
                         <form id="loginForm">
                             <div class="mb-3">
-                                <label for="username" class="form-label small fw-bold">Username</label>
+                                <label for="loginUsername" class="form-label small fw-bold">Username</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
-                                    <input type="text" class="form-control border-start-0" id="username" placeholder="Masukkan username" required>
+                                    <input type="text" class="form-control border-start-0" id="loginUsername" placeholder="Masukkan username" required>
                                 </div>
                             </div>
                             <div class="mb-4">
-                                <label for="password" class="form-label small fw-bold">Password</label>
+                                <label for="loginPassword" class="form-label small fw-bold">Password</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
-                                    <input type="password" class="form-control border-start-0" id="password" placeholder="Masukkan password" required>
+                                    <input type="password" class="form-control border-start-0" id="loginPassword" placeholder="Masukkan password" required>
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-primary w-100 fw-bold py-2 shadow-sm" id="btnLogin">
                                 <i class="bi bi-box-arrow-in-right me-2"></i>Masuk
                             </button>
+                            <div class="text-center mt-3">
+                                <p class="small text-muted mb-0">Belum punya akun warga? <a href="#" id="link-to-register" class="text-decoration-none fw-bold">Daftar Sekarang</a></p>
+                            </div>
                         </form>
                     </div>
                 </div>
+
+                <div class="card shadow-sm border-0 rounded-3" id="register-container" style="display: none;">
+                    <div class="card-body p-4">
+                        <div class="text-center mb-4">
+                            <i class="bi bi-person-plus-fill text-success" style="font-size: 3rem;"></i>
+                            <h4 class="fw-bold mt-2">Registrasi Warga</h4>
+                            <p class="text-muted small">Buat akun untuk mulai melaporkan masalah kota</p>
+                        </div>
+                        <div id="register-alert"></div>
+                        <form id="registerForm">
+                            <div class="mb-3">
+                                <label for="regUsername" class="form-label small fw-bold">Username</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
+                                    <input type="text" class="form-control border-start-0" id="regUsername" placeholder="Buat username baru" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="regEmail" class="form-label small fw-bold">Alamat Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-muted"></i></span>
+                                    <input type="email" class="form-control border-start-0" id="regEmail" placeholder="nama@email.com" required>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="regPassword" class="form-label small fw-bold">Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
+                                    <input type="password" class="form-control border-start-0" id="regPassword" placeholder="Buat password aman" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100 fw-bold py-2 shadow-sm" id="btnRegister">
+                                <i class="bi bi-person-check me-2"></i>Daftar Akun
+                            </button>
+                            <div class="text-center mt-3">
+                                <p class="small text-muted mb-0">Sudah memiliki akun? <a href="#" id="link-to-login" class="text-decoration-none fw-bold">Masuk di sini</a></p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
             </div>
         </div>
     </template>
-
 
     <template id="dashboard-template">
         <div class="row">
@@ -74,10 +117,10 @@
                 </div>
                 
                 <div class="list-group sidebar-menu shadow-sm border-0 rounded-3 mb-4">
-                    <a href="#dashboard" class="list-group-items list-group-item-action p-3 fw-bold border-0 active" id="tabFeedKota">
+                    <a href="#dashboard" class="list-group-item list-group-item-action p-3 fw-bold border-0 active" id="tabFeedKota">
                         <i class="bi bi-rss me-2"></i>Feed Kota (Semua)
                     </a>
-                    <a href="#dashboard" class="list-group-items list-group-item-action p-3 fw-bold border-0 text-dark" id="tabLaporanSaya">
+                    <a href="#dashboard" class="list-group-item list-group-item-action p-3 fw-bold border-0 text-dark" id="tabLaporanSaya">
                         <i class="bi bi-person-bounding-box me-2"></i>Laporan Saya
                     </a>
                 </div>
@@ -103,7 +146,6 @@
 
             <div class="col-md-6 mb-4">
                 <div id="error-alert-container"></div>
-                
                 <div id="feed-reports-container" class="d-flex flex-column gap-3"></div>
             </div>
 
@@ -114,7 +156,7 @@
                             <i class="bi bi-info-circle-fill text-primary me-2"></i>Informasi Wilayah
                         </h6>
                         <p class="text-muted small mb-0 lh-base">
-                            Menampilkan data laporan real-time yang tersinkronisasi langsung dengan server Django Port 8000.
+                            Menampilkan data laporan real-time yang tersinkronisasi langsung dengan server Django Port 8014.
                         </p>
                     </div>
                 </div>

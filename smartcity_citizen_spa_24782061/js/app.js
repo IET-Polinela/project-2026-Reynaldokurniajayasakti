@@ -13,6 +13,11 @@
     } else {
         window.location.hash = '#login';
     }
+
+    // PENGAMAN & INISIALISASI OTOMATIS: 
+    // Memastikan handler event form dari auth.js terpasang dengan aman saat aplikasi dimuat
+    if (typeof setupLoginForm === 'function') setupLoginForm();
+    if (typeof setupRegisterForm === 'function') setupRegisterForm();
 })();
 
 // =====================================================================
@@ -278,7 +283,7 @@ async function submitReportForm(status) {
         category: category,
         location: location,
         description: description,
-        status: status // Berisi 'DRAFT' atau 'REPORTED'
+        status: status // Berisi 'DRAFT' or 'REPORTED'
     };
 
     try {

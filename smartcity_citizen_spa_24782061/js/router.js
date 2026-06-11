@@ -111,7 +111,7 @@ function handleRouting() {
                                     <input type="text" class="form-control form-control-sm" id="reportLocation" required placeholder="Nama jalan, RT/RW, atau titik koordinat GPS">
                                 </div>
                                 <div class="mb-3">
-                                    <label for="reportDescription" class="form-label small fw-bold">Deskripsi Kronologi Lengkap</label>
+                                    <label pour="reportDescription" class="form-label small fw-bold">Deskripsi Kronologi Lengkap</label>
                                     <textarea class="form-control form-control-sm" id="reportDescription" rows="4" required placeholder="Jelaskan secara rinci kondisi masalah di lapangan..."></textarea>
                                 </div>
                             </form>
@@ -167,11 +167,12 @@ function handleRouting() {
         }
 
     } else if (hash === '#login') {
-        // 2. Suntikkan HTML Form Login secara paksa dengan ID yang SINKRON ke auth.js
+        // 2. Suntikkan HTML Form Login & Register secara bersamaan (SINKRON ke auth.js)
         appContent.innerHTML = `
             <div class="row justify-content-center align-items-center" style="min-height: 70vh; width: 100%; margin: 0;">
                 <div class="col-md-4">
-                    <div class="card shadow-sm border-0 rounded-3">
+                    
+                    <div class="card shadow-sm border-0 rounded-3" id="login-container">
                         <div class="card-body p-4">
                             <div class="text-center mb-4">
                                 <i class="bi bi-shield-lock-fill text-primary" style="font-size: 3rem;"></i>
@@ -198,15 +199,62 @@ function handleRouting() {
                                     <i class="bi bi-box-arrow-in-right me-2"></i>Masuk
                                 </button>
                             </form>
+                            <div class="text-center mt-3">
+                                <p class="small text-muted mb-0">Belum punya akun warga? <a href="#" id="link-to-register" class="text-primary fw-bold text-decoration-none">Daftar Sekarang</a></p>
+                            </div>
                         </div>
                     </div>
+
+                    <div class="card shadow-sm border-0 rounded-3" id="register-container" style="display: none;">
+                        <div class="card-body p-4">
+                            <div class="text-center mb-4">
+                                <i class="bi bi-person-plus-fill text-success" style="font-size: 3rem;"></i>
+                                <h4 class="fw-bold mt-2">Daftar Akun Citizen</h4>
+                                <p class="text-muted small">Lengkapi data untuk bergabung sebagai warga</p>
+                            </div>
+                            <div id="register-alert"></div>
+                            <form id="registerForm">
+                                <div class="mb-3">
+                                    <label for="regUsername" class="form-label small fw-bold">Username</label>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
+                                        <input type="text" class="form-control border-start-0" id="regUsername" placeholder="Buat username baru" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="regEmail" class="form-label small fw-bold">Email</label>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-muted"></i></span>
+                                        <input type="email" class="form-control border-start-0" id="regEmail" placeholder="nama@email.com" required>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="regPassword" class="form-label small fw-bold">Password</label>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
+                                        <input type="password" class="form-control border-start-0" id="regPassword" placeholder="Buat password minimal 8 karakter" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-success w-100 btn-sm fw-bold py-2 shadow-sm" id="btnRegister">
+                                    <i class="bi bi-check-circle me-2"></i>Daftar Sekarang
+                                </button>
+                            </form>
+                            <div class="text-center mt-3">
+                                <p class="small text-muted mb-0">Sudah punya akun? <a href="#" id="link-to-login" class="text-success fw-bold text-decoration-none">Masuk Saja</a></p>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         `;
 
-        // LANGSUNG PREPARE DAN AKTIFKAN LISTENER LOGIN DARI AUTH.JS
-        if (typeof setupLoginForm === 'function') {
-            setupLoginForm();
+        // Amankan inisialisasi listener login/register dari auth.js
+        if (typeof initAuth === 'function') {
+            initAuth();
+        } else {
+            if (typeof setupLoginForm === 'function') setupLoginForm();
+            if (typeof setupRegisterForm === 'function') setupRegisterForm();
         }
     } else {
         window.location.hash = '#login';
