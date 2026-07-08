@@ -1,0 +1,73 @@
+{% extends 'main_app/base.html' %}
+
+{% block title %}Tentang Aplikasi - IET City{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <p class="breadcrumb-text">
+            <a href="{% url 'home' %}" class="text-decoration-none">Home</a> 
+            <span class="mx-2 text-muted">/</span> 
+            <span class="text-dark fw-medium">Tentang Aplikasi</span>
+        </p>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-info-circle-fill display-4 text-warning"></i>
+                        <h2 class="fw-bold text-dark mt-3">Tentang IET City</h2>
+                        <div class="badge bg-light text-dark border px-3 py-2 rounded-pill">Versi 1.0</div>
+                    </div>
+
+                    <div class="content-text mb-4">
+                        <p class="lead text-muted text-center">
+                            Aplikasi Pelaporan Permasalahan Kota berbasis Web.
+                        </p>
+                        <hr class="my-4 opacity-25">
+                        <p class="text-secondary">
+                            Halaman ini dikelola oleh <strong>Kurnia</strong>. <strong>IET City</strong> dirancang untuk memudahkan warga dalam melaporkan berbagai kendala infrastruktur atau layanan publik secara real-time.
+                        </p>
+                        <p class="text-secondary">
+                            Dibangun menggunakan framework <strong>Django</strong>, sistem ini mengedepankan transparansi status laporan, mulai dari tahap <em>Reported</em> hingga <em>Resolved</em>.
+                        </p>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded-4">
+                        <span class="small text-muted">Dikembangkan di Lab IET Polinela</span>
+                        <a href="{% url 'home' %}" class="btn btn-dark rounded-pill px-4">
+                            <i class="bi bi-arrow-left me-2"></i>Beranda
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Styling Breadcrumb sesuai standar proyek */
+    .breadcrumb-text { 
+        font-size: 0.95rem; 
+        margin-bottom: 0;
+    }
+    .breadcrumb-text a { 
+        color: #0d6efd; 
+    }
+    .breadcrumb-text a:hover { 
+        text-decoration: underline !important; 
+    }
+
+    /* Kustomisasi teks */
+    .content-text p {
+        line-height: 1.8;
+    }
+    
+    .card {
+        background-color: #ffffff;
+        border-left: 6px solid #ffc107 !important; /* Aksen warna warning */
+    }
+</style>
+{% endblock %}
