@@ -7,8 +7,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Report
 from .forms import ReportForm
 
+<<<<<<< HEAD
 # 1. Halaman Home
 class HomeView(LoginRequiredMixin, CreateView): 
+=======
+<<<<<<< HEAD
+# Tampilan Utama: Menampilkan Daftar Laporan + Form Input
+class ReportListView(ListView):
+>>>>>>> 5cd9f5e9fde0fcb22f3b9e2d93cd2e1e73aec3bc
     model = Report
     form_class = ReportForm
     template_name = 'main_app/home.html'
@@ -91,5 +97,28 @@ class ReportUpdateStatusView(LoginRequiredMixin, View):
             status_label = report.status
 
         report.save()
+<<<<<<< HEAD
         messages.success(request, f"Laporan berhasil {status_label}!")
         return redirect('report_list')
+=======
+        return redirect('home')
+=======
+def home(request):
+    # Logika Simpan Laporan (Create)
+    if request.method == "POST":
+        form = ReportForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+    else:
+        form = ReportForm()
+
+    # Logika Ambil Data (Read)
+    reports = Report.objects.all().order_by('-created_at')
+    
+    return render(request, 'main_app/home.html', {
+        'form': form, 
+        'reports': reports
+    }
+>>>>>>> ff11213bdda2ad49528308a98deb6e72e3fbd945
+>>>>>>> 5cd9f5e9fde0fcb22f3b9e2d93cd2e1e73aec3bc
