@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, redirect
 from .models import Report
 from .forms import ReportForm
 
+<<<<<<< HEAD
 # Tampilan Utama: Menampilkan Daftar Laporan + Form Input
 class ReportListView(ListView):
     model = Report
@@ -48,3 +49,22 @@ class ReportUpdateStatusView(View):
         report.status = new_status
         report.save()
         return redirect('home')
+=======
+def home(request):
+    # Logika Simpan Laporan (Create)
+    if request.method == "POST":
+        form = ReportForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+    else:
+        form = ReportForm()
+
+    # Logika Ambil Data (Read)
+    reports = Report.objects.all().order_by('-created_at')
+    
+    return render(request, 'main_app/home.html', {
+        'form': form, 
+        'reports': reports
+    }
+>>>>>>> ff11213bdda2ad49528308a98deb6e72e3fbd945
