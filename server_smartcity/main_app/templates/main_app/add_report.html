@@ -1,0 +1,98 @@
+{% extends 'main_app/base.html' %}
+
+{% block title %}Edit Laporan - IET City{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb bg-white p-3 rounded-pill shadow-sm">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'home' %}" class="text-decoration-none">Home</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'report_list' %}" class="text-decoration-none">Daftar Laporan</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Edit Laporan</li>
+                </ol>
+            </nav>
+
+            <div class="text-center mb-4">
+                <h2 class="fw-bold text-dark">Perbarui Laporan</h2>
+                <p class="text-muted">Pastikan data permasalahan kota diisi dengan akurat.</p>
+            </div>
+
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="form-floating mb-3">
+                            <input type="text" name="title" class="form-control rounded-3" id="id_title" placeholder="Judul Laporan" value="{{ form.title.value|default:'' }}" required>
+                            <label for="id_title">Judul Laporan</label>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted ms-1">Kategori Permasalahan</label>
+                            <select name="category" class="form-select form-select-lg rounded-3 fs-6" id="id_category">
+                                {% for choice in form.fields.category.choices %}
+                                    <option value="{{ choice.0 }}" {% if form.category.value == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <textarea name="description" class="form-control rounded-3" id="id_description" style="height: 150px" placeholder="Deskripsi Lengkap">{{ form.description.value|default:'' }}</textarea>
+                            <label for="id_description">Deskripsi Lengkap</label>
+                        </div>
+
+                        <div class="form-floating mb-4">
+                            <input type="text" name="location" class="form-control rounded-3" id="id_location" placeholder="Lokasi Kejadian" value="{{ report.location }}" required>
+                            <label for="id_location">Lokasi Spesifik (Contoh: Nama Jalan/Kelurahan)</label>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm">
+                                <i class="bi bi-check-circle me-2"></i>Simpan Perubahan
+                            </button>
+                            <a href="{% url 'report_list' %}" class="btn btn-link text-decoration-none text-muted fw-bold mt-2">
+                                Batal dan Kembali
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="mt-4 text-center">
+                <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i> Perubahan ini akan segera diperbarui di database sistem.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* UI Enhancements */
+    body { background-color: #f8f9fa; }
+    
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "/";
+        color: #6c757d;
+    }
+    
+    .breadcrumb {
+        font-size: 0.9rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    }
+    .card { transition: transform 0.3s ease; }
+    .btn-primary { transition: all 0.3s ease; }
+    .btn-primary:hover { transform: translateY(-2px); }
+</style>
+{% endblock %}
