@@ -125,14 +125,13 @@
 <script>
     // Ambil elemen tabel
     const tbody = document.getElementById('reportTableBody');
-    // SIMPAN KONTEN AWAL: Ini kunci agar bisa kembali ke daftar awal secara instan
+    // SIMPAN KONTEN AWAL
     const initialTableContent = tbody.innerHTML;
 
     // 1. LIVE SEARCH LOGIC
     document.getElementById('searchInput').addEventListener('input', function(e) {
         const query = e.target.value.trim();
 
-        // Jika input kosong, langsung kembalikan ke konten awal dan hentikan fungsi (return)
         if (query === '') {
             tbody.innerHTML = initialTableContent;
             return;
@@ -141,6 +140,9 @@
         fetch(`/search/?q=${query}`)
             .then(response => response.json())
             .then(data => {
+                // UPDATE: Menambahkan log untuk screenshot nomor 6
+                console.log("Live search JSON:", data);
+
                 tbody.innerHTML = '';
                 
                 if (data.reports.length === 0) {
@@ -208,6 +210,9 @@
             fetch(`/api/detail/${reportId}/`)
                 .then(response => response.json())
                 .then(data => {
+                    // UPDATE: Menambahkan log juga untuk detail laporan jika diperlukan
+                    console.log("Detail Report JSON:", data);
+
                     modalContent.innerHTML = `
                         <div class="mb-3">
                             <label class="text-muted small fw-bold text-uppercase">Judul Laporan</label>

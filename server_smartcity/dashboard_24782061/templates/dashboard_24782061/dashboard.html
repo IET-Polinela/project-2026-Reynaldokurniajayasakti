@@ -1,0 +1,491 @@
+{% extends 'main_app/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row align-items-center mb-4">
+        <div class="col d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">Dashboard Statistik Laporan</h2>
+            <button type="button" class="btn btn-primary fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#reportModal">
+                <i class="bi bi-plus-circle me-2"></i>Tambah Laporan Baru
+            </button>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-12">
+            <ul class="nav nav-tabs w-100">
+                <li class="nav-item">
+                    <button class="nav-link active" id="tab-feed" onclick="switchTab('feed')">Feed Kota</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="tab-my-reports" onclick="switchTab('my_reports')">Laporan Saya</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow w-100">
+                <div class="card-header bg-primary text-white fw-bold">Distribusi Status Laporan</div>
+                <div class="card-body">
+                    <div style="position: relative; width: 100%;">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card shadow w-100">
+                <div class="card-header bg-success text-white fw-bold">Jumlah Laporan per Kategori</div>
+                <div class="card-body">
+                    <div style="position: relative; width: 100%;">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100 w-100">
+                <div class="card-header bg-info text-white fw-bold">5 Laporan Masuk Terakhir</div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush w-100" id="reportedTable" style="min-height: 1px;"></ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100 w-100">
+                <div class="card-header bg-warning text-dark fw-bold">5 Laporan Selesai Terakhir</div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush w-100" id="resolvedTable" style="min-height: 1px;"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4 mb-2">
+        <div class="col-12">
+            <h3>Daftar Laporan Terkini</h3>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div id="report-container" class="row"></div>
+
+            <div class="row mt-3 mb-4">
+                <div class="col-12" id="paginationContainer"></div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm sticky-top" style="top: 20px; z-index: 10;">
+                <div class="card-header bg-dark text-white fw-bold">
+                    <i class="bi bi-pie-chart-fill me-2"></i>Rekap Status Saya
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                        <span><i class="bi bi-file-earmark-text me-2 text-warning"></i> Draft Laporan</span>
+                        <span class="badge bg-warning text-dark rounded-pill fw-bold px-3" id="sidebar-draft-count">0</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                        <span><i class="bi bi-clock-history me-2 text-info"></i> Laporan Diproses</span>
+                        <span class="badge bg-info text-white rounded-pill fw-bold px-3" id="sidebar-progress-count">0</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                        <span><i class="bi bi-check-circle me-2 text-success"></i> Laporan Selesai</span>
+                        <span class="badge bg-success text-white rounded-pill fw-bold px-3" id="sidebar-resolved-count">0</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold" id="reportModalLabel">
+                    <i class="bi bi-pencil-square me-2"></i>Buat Laporan Baru
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" id="btnCloseModal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="reportForm">
+                    <div class="mb-3">
+                        <label for="reportTitle" class="form-label fw-bold">Judul Laporan</label>
+                        <input type="text" class="form-control" id="reportTitle" placeholder="Contoh: Jalan Berlubang, Banjir, dll." required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="reportCategory" class="form-label fw-bold">Kategori</label>
+                        <select class="form-select" id="reportCategory" required>
+                            <option value="" disabled selected>-- Pilih Kategori Laporan --</option>
+                            <option value="Infrastruktur">Infrastruktur</option>
+                            <option value="Kesehatan">Kesehatan</option>
+                            <option value="Keamanan">Keamanan</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="reportLocation" class="form-label fw-bold">Lokasi Kejadian</label>
+                        <input type="text" class="form-control" id="reportLocation" placeholder="Masukkan nama jalan atau kelurahan" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="reportDescription" class="form-label fw-bold">Deskripsi Masalah</label>
+                        <textarea class="form-control" id="reportDescription" rows="4" placeholder="Ceritakan detail masalah yang terjadi..." required></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="button" class="btn btn-outline-secondary fw-bold px-4" id="btnDraft">Simpan Draft</button>
+                        <button type="button" class="btn btn-primary fw-bold px-4" id="btnSubmit">
+                            Ajukan <i class="bi bi-send-fill ms-1"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // State Global Jalur Tab Backend
+    let currentTab = 'feed';  
+    let currentPage = 1;      
+    let allReports = [];      
+    let totalPages = 1;       
+    
+    // LANGKAH 5: Deklarasikan variabel global untuk melacak id data yang diedit
+    let editingReportId = null;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Tarik Data Statistik Ringkasan Visual
+        fetch('/dashboard/api/stats/')
+            .then(response => response.json())
+            .then(data => {
+                const ctxStatus = document.getElementById('statusChart').getContext('2d');
+                new Chart(ctxStatus, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.status_labels,
+                        datasets: [{
+                            data: data.status_data,
+                            backgroundColor: ['#17a2b8', '#007bff', '#28a745', '#ffc107']
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: true }
+                });
+
+                const ctxCategory = document.getElementById('categoryChart').getContext('2d');
+                new Chart(ctxCategory, {
+                    type: 'bar',
+                    data: {
+                        labels: data.category_labels,
+                        datasets: [{
+                            label: 'Jumlah Laporan',
+                            data: data.category_data,
+                            backgroundColor: '#6610f2'
+                        }]
+                    },
+                    options: { responsive: true, scales: { y: { beginAtZero: true } } }
+                });
+
+                const listReported = document.getElementById('reportedTable');
+                if (listReported && data.recent_reported) {
+                    listReported.innerHTML = '';
+                    data.recent_reported.forEach(item => {
+                        listReported.innerHTML += `
+                            <li class="list-group-item d-flex justify-content-between align-items-start w-100">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold text-wrap">${item.title}</div>
+                                    <small class="text-muted">${item.category}</small>
+                                </div>
+                            </li>`;
+                    });
+                }
+
+                const listResolved = document.getElementById('resolvedTable');
+                if (listResolved && data.recent_resolved) {
+                    listResolved.innerHTML = '';
+                    data.recent_resolved.forEach(item => {
+                        listResolved.innerHTML += `
+                            <li class="list-group-item d-flex justify-content-between align-items-start w-100">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold text-wrap">${item.title}</div>
+                                    <span class="badge bg-success rounded-pill mt-1">${item.status}</span>
+                                </div>
+                            </li>`;
+                    });
+                }
+            })
+            .catch(error => console.error('Error fetching stats:', error));
+
+        // 2. Jalankan tarikan data dashboard pertama kali
+        loadDashboardData(currentTab, currentPage);
+
+        // 3. Daftarkan Handler Pengiriman Form Modal
+        const btnDraft = document.getElementById('btnDraft');
+        const btnSubmit = document.getElementById('btnSubmit');
+        if (btnDraft) btnDraft.addEventListener('click', () => submitReportForm('DRAFT'));
+        if (btnSubmit) btnSubmit.addEventListener('click', () => submitReportForm('REPORTED'));
+
+        // LANGKAH 5: Event Listener Reset otomatis saat modal ditutup (agar balik dari mode Edit ke mode Create)
+        const myModalEl = document.getElementById('reportModal');
+        if (myModalEl) {
+            myModalEl.addEventListener('hidden.bs.modal', function () {
+                editingReportId = null;
+                document.getElementById('reportForm').reset();
+                document.getElementById('reportModalLabel').innerHTML = '<i class="bi bi-pencil-square me-2"></i>Buat Laporan Baru';
+            });
+        }
+    });
+
+    // Pengendali Perpindahan Tab Navigasi
+    function switchTab(tabName) {
+        currentTab = tabName;
+        currentPage = 1; 
+        document.getElementById('tab-feed')?.classList.toggle('active', tabName === 'feed');
+        document.getElementById('tab-my-reports')?.classList.toggle('active', tabName === 'my_reports');
+        loadDashboardData(currentTab, currentPage);
+    }
+
+    // Fungsi Pengambil Data Terpaginasi dari Server REST API
+    function loadDashboardData(tab = currentTab, page = currentPage) {
+        currentTab = tab;
+        currentPage = page;
+
+        fetch(`/api/report/?tab=${tab}&page=${page}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                allReports = data.results || [];
+                const totalData = data.count || 0;
+                totalPages = Math.ceil(totalData / 10) || 1;
+
+                renderList();
+                renderPagination();
+                loadSummaryStats();
+            })
+            .catch(error => {
+                console.error('Error memuat list laporan:', error);
+                const reportContainer = document.getElementById('report-container');
+                if (reportContainer) {
+                    reportContainer.innerHTML = `
+                        <div class="col-12 text-center text-danger my-4 p-4 border rounded bg-white shadow-sm">
+                            <i class="bi bi-exclamation-octagon fs-2"></i>
+                            <p class="mt-2 fw-bold mb-0">Gagal memuat data laporan dari server.</p>
+                        </div>`;
+                }
+            });
+    }
+
+    // Fungsi untuk Kalkulasi Rekap Status menggunakan Trik Bypass Pagination
+    function loadSummaryStats() {
+        fetch('/api/report/?tab=my_reports&page_size=1000')
+            .then(response => {
+                if (!response.ok) throw new Error('Summary network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                const reports = data.results || [];
+                
+                const totalDraft = reports.filter(report => report.status === 'DRAFT').length;
+                const totalDiproses = reports.filter(report => report.status === 'IN_PROGRESS').length;
+                const totalSelesai = reports.filter(report => report.status === 'RESOLVED').length;
+                
+                const elDraft = document.getElementById('sidebar-draft-count');
+                const elDiproses = document.getElementById('sidebar-progress-count');
+                const elSelesai = document.getElementById('sidebar-resolved-count');
+                
+                if (elDraft) elDraft.textContent = totalDraft;
+                if (elDiproses) elDiproses.textContent = totalDiproses;
+                if (elSelesai) elSelesai.textContent = totalSelesai;
+            })
+            .catch(error => console.error('Error menghitung summary stats sidebar:', error));
+    }
+
+    // LANGKAH 5: Fungsi editDraft(id) untuk mengambil data lama dan memunculkan modal
+    function editDraft(id) {
+        fetch(`/api/report/${id}/`)
+            .then(response => {
+                if (!response.ok) throw new Error('Gagal mengambil detail data laporan');
+                return response.json();
+            })
+            .then(report => {
+                // Isi form modal dengan data lama hasil fetch
+                document.getElementById('reportTitle').value = report.title || '';
+                document.getElementById('reportCategory').value = report.category || '';
+                document.getElementById('reportLocation').value = report.location || '';
+                document.getElementById('reportDescription').value = report.description || '';
+
+                // Set parameter editing global
+                editingReportId = id;
+
+                // Ubah judul modal agar user tahu ini aksi pengeditan
+                document.getElementById('reportModalLabel').innerHTML = '<i class="bi bi-pencil-square me-2"></i>Edit Draft Laporan';
+
+                // Tampilkan modal Bootstrap secara programmatik via JavaScript
+                const modalElement = document.getElementById('reportModal');
+                let modalInstance = bootstrap.Modal.getInstance(modalElement);
+                if (!modalInstance) {
+                    modalInstance = new bootstrap.Modal(modalElement);
+                }
+                modalInstance.show();
+            })
+            .catch(error => {
+                console.error('Error editDraft:', error);
+                alert('Gagal memuat data lama laporan.');
+            });
+    }
+
+    // Fungsi Penyusun Kartu Laporan Terkini ke Dalam Grid DOM
+    function renderList() {
+        const reportContainer = document.getElementById('report-container');
+        if (!reportContainer) return;
+        reportContainer.innerHTML = '';
+
+        if (!Array.isArray(allReports) || allReports.length === 0) {
+            reportContainer.innerHTML = `
+                <div class="col-12 text-center my-3">
+                    <div class="alert alert-info w-100 shadow-sm">Belum ada data laporan pada kategori ini.</div>
+                </div>`;
+            return;
+        }
+
+        allReports.forEach(report => {
+            let progressPercent = 0;
+            let progressColor = 'bg-secondary';
+            
+            if (report.status === 'DRAFT') { progressPercent = 15; progressColor = 'bg-warning text-dark'; }
+            else if (report.status === 'REPORTED' || report.status === 'PUBLISHED') { progressPercent = 35; progressColor = 'bg-info'; }
+            else if (report.status === 'VERIFIED') { progressPercent = 55; progressColor = 'bg-primary'; }
+            else if (report.status === 'IN_PROGRESS') { progressPercent = 75; progressColor = 'bg-warning text-dark'; }
+            else if (report.status === 'RESOLVED') { progressPercent = 100; progressColor = 'bg-success'; }
+
+            const cardHTML = `
+                <div class="col-12 mb-3">
+                    <div class="card shadow-sm w-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start gap-2">
+                                <h5 class="card-title text-wrap mb-1 fw-bold">${report.title || 'Tanpa Judul'}</h5>
+                                <span class="badge bg-light text-dark border flex-shrink-0">${report.category || 'Lainnya'}</span>
+                            </div>
+                            <h6 class="card-subtitle mb-3 text-muted small mt-1">
+                                <i class="bi bi-person-circle"></i> ${report.reporter || 'Warga Anonim'} | 
+                                <i class="bi bi-calendar3"></i> ${report.updated_at ? new Date(report.updated_at).toLocaleDateString('id-ID') : '-'}
+                            </h6>
+                            <p class="card-text text-wrap text-secondary mb-3">${report.description || ''}</p>
+                            <div class="mt-2 small text-muted d-flex justify-content-between align-items-center">
+                                <span>Status: <strong class="text-dark">${report.status || 'UNKNOWN'}</strong></span>
+                                <span class="fw-bold">${progressPercent}%</span>
+                            </div>
+                            <div class="progress mt-1" style="height: 8px;">
+                                <div class="progress-bar ${progressColor}" role="progressbar" style="width: ${progressPercent}%"></div>
+                            </div>
+                            
+                            ${report.status === 'DRAFT' ? `
+                            <div class="d-flex justify-content-end mt-3">
+                                <button type="button" class="btn btn-sm btn-outline-warning fw-bold px-3" onclick="editDraft(${report.id})">
+                                    <i class="bi bi-pencil-square me-1"></i> Edit Draft
+                                </button>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>`;
+            reportContainer.insertAdjacentHTML('beforeend', cardHTML);
+        });
+    }
+
+    // Fungsi Penyusun Navigasi Pagination Bootstrap
+    function renderPagination() {
+        const container = document.getElementById('paginationContainer');
+        if (!container) return;
+        container.innerHTML = '';
+
+        if (totalPages <= 1) return;
+
+        let html = `<ul class="pagination justify-content-center mb-0">`;
+        html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <button class="page-link" type="button" onclick="loadDashboardData('${currentTab}', ${currentPage - 1})">Sebelumnya</button>
+        </li>`;
+
+        for (let i = 1; i <= totalPages; i++) {
+            html += `<li class="page-item ${currentPage === i ? 'active' : ''}">
+                <button class="page-link" type="button" onclick="loadDashboardData('${currentTab}', ${i})">${i}</button>
+            </li>`;
+        }
+
+        html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <button class="page-link" type="button" onclick="loadDashboardData('${currentTab}', ${currentPage + 1})">Selanjutnya</button>
+        </li>`;
+        html += `</ul>`;
+        container.innerHTML = html;
+    }
+
+    // Fungsi Pengirim Data Form Modal & Pembersih Backdrop Glitch (Dinamis POST / PUT)
+    function submitReportForm(targetStatus) {
+        const title = document.getElementById('reportTitle').value;
+        const category = document.getElementById('reportCategory').value;
+        const location = document.getElementById('reportLocation').value;
+        const description = document.getElementById('reportDescription').value;
+
+        if (!title || !category || !location || !description) {
+            alert('Mohon lengkapi semua bidang form!');
+            return;
+        }
+
+        const csrfToken = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
+
+        // LANGKAH 5: Logika Penentu URL dan Method HTTP (POST vs PUT)
+        const url = editingReportId ? `/api/report/${editingReportId}/` : '/api/report/';
+        const method = editingReportId ? 'PUT' : 'POST';
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({ title, category, location, description, status: targetStatus })
+        })
+        .then(response => {
+            // LANGKAH 5: Mendukung balasan sukses 200 OK (untuk PUT) atau 201 Created (untuk POST)
+            if (response.ok) {
+                alert(`Laporan berhasil ${editingReportId ? 'diperbarui' : 'disimpan'} sebagai ${targetStatus === 'DRAFT' ? 'Draft' : 'Pengajuan'}!`);
+                
+                // Reset form, kembalikan parameter editing ke null
+                document.getElementById('reportForm').reset();
+                editingReportId = null;
+                
+                document.getElementById('btnCloseModal').click();
+
+                setTimeout(() => {
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                }, 300);
+
+                // Tarik data ulang secara real-time tanpa refresh browser
+                loadDashboardData(currentTab, 1);
+            } else {
+                alert('Gagal menyimpan laporan.');
+            }
+        })
+        .catch(error => console.error('Error submit form:', error));
+    }
+</script>
+{% endblock %}
