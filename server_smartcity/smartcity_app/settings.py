@@ -24,7 +24,14 @@ DEBUG = True
 # Diubah ke '*' khusus untuk kebutuhan shared-server praktikum agar fleksibel [cite: 51]
 ALLOWED_HOSTS = ['*']
 
+<<<<<<< HEAD
 
+=======
+CSRF_TRUSTED_ORIGINS = [
+    'http://103.151.63.71:8004',
+    'http://103.151.63.71',
+]
+>>>>>>> 31e81c5f218d5b12b030daaa72bfae2929b3dbf7
 # Application definition
 
 INSTALLED_APPS = [
@@ -34,16 +41,25 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 31e81c5f218d5b12b030daaa72bfae2929b3dbf7
     # App Proyek Sebelumnya
     'main_app',
     'about',
     'contacts',
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 31e81c5f218d5b12b030daaa72bfae2929b3dbf7
     # App Baru Lab Session 6
     'usermanagement_24782061',
 
     # App Baru Lab Session 7
+<<<<<<< HEAD
     'dashboard_24782061', 
 
     # App Baru Lab Session 9
@@ -54,11 +70,29 @@ INSTALLED_APPS = [
 
     # App Baru Lab Session 11 (CORS Headers) [cite: 48]
     'corsheaders', 
+=======
+    'dashboard_24782061',
+
+    # App Baru Lab Session 9
+    'rest_framework',
+
+    # App Baru Lab Session 10 (JWT Authentication)
+    'rest_framework_simplejwt',
+
+    # App Baru Lab Session 11 (CORS Headers) [cite: 48]
+    'corsheaders',
+    'drf_spectacular',
+    'django_scalar',
+>>>>>>> 31e81c5f218d5b12b030daaa72bfae2929b3dbf7
 ]
 
 MIDDLEWARE = [
     # CorsMiddleware WAJIB diletakkan paling atas sebelum middleware lainnya [cite: 49]
+<<<<<<< HEAD
     'corsheaders.middleware.CorsMiddleware', 
+=======
+    'corsheaders.middleware.CorsMiddleware',
+>>>>>>> 31e81c5f218d5b12b030daaa72bfae2929b3dbf7
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -75,9 +109,15 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
+<<<<<<< HEAD
             BASE_DIR / 'templates', 
             BASE_DIR / 'usermanagement_24782061',
             BASE_DIR / 'main_app' / 'templates', 
+=======
+            BASE_DIR / 'templates',
+            BASE_DIR / 'usermanagement_24782061',
+            BASE_DIR / 'main_app' / 'templates',
+>>>>>>> 31e81c5f218d5b12b030daaa72bfae2929b3dbf7
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -100,12 +140,21 @@ WSGI_APPLICATION = 'smartcity_app.wsgi.application'
 # Catatan: Ketika di server, bagian ini dikonfigurasi ulang ke PostgreSQL sesuai ketentuan modul[cite: 100].
 DATABASES = {
     'default': {
+<<<<<<< HEAD
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'smartcity_db_new',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': '127.0.0.1',
         'PORT': '3306',
+=======
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.mysql'),
+        'NAME': os.getenv('DB_NAME', 'smartcity_db_aldo'),
+        'USER': os.getenv('DB_USER', 'root'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', '127.0.0.1'),
+        'PORT': os.getenv('DB_PORT', '3306'),
+>>>>>>> 31e81c5f218d5b12b030daaa72bfae2929b3dbf7
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
@@ -144,8 +193,13 @@ AUTH_USER_MODEL = 'usermanagement_24782061.User'
 
 # Pengaturan Redirect Autentikasi
 LOGIN_URL = 'login'
+<<<<<<< HEAD
 LOGIN_REDIRECT_URL = 'home'  
 LOGOUT_REDIRECT_URL = 'login' 
+=======
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'login'
+>>>>>>> 31e81c5f218d5b12b030daaa72bfae2929b3dbf7
 
 # ==========================================================
 # KONFIGURASI DJANGO REST FRAMEWORK & JWT (LAB SESSION 10)
@@ -159,6 +213,13 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',  # <--- Tambahan agar bisa Login via Browser
     ),
+<<<<<<< HEAD
+=======
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+>>>>>>> 31e81c5f218d5b12b030daaa72bfae2929b3dbf7
 }
 
 # Pengaturan Masa Aktif Token JWT agar tidak cepat habis saat testing/demo tugas
@@ -197,4 +258,19 @@ CORS_ALLOW_HEADERS = [
     "user-agent",
     "x-csrftoken",
     "x-requested-with",
+<<<<<<< HEAD
 ]
+=======
+]
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Smart City Portal API',
+    'DESCRIPTION': 'Dokumentasi REST API resmi untuk Portal Pelaporan Laporan Warga',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SECURITY': [{'Bearer': []}],
+    'SWAGGER_UI_SETTINGS': {
+        'persistAuthorization': True,
+    },
+}
+>>>>>>> 31e81c5f218d5b12b030daaa72bfae2929b3dbf7

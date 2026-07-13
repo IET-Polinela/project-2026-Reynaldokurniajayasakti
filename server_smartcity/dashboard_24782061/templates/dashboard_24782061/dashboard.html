@@ -53,7 +53,11 @@
             <div class="card shadow h-100 w-100">
                 <div class="card-header bg-info text-white fw-bold">5 Laporan Masuk Terakhir</div>
                 <div class="card-body p-0">
+<<<<<<< HEAD
                     <ul class="list-group list-group-flush w-100" id="recentReported"></ul>
+=======
+                    <ul class="list-group list-group-flush w-100" id="reportedTable" style="min-height: 1px;"></ul>
+>>>>>>> 31e81c5f218d5b12b030daaa72bfae2929b3dbf7
                 </div>
             </div>
         </div>
@@ -62,7 +66,11 @@
             <div class="card shadow h-100 w-100">
                 <div class="card-header bg-warning text-dark fw-bold">5 Laporan Selesai Terakhir</div>
                 <div class="card-body p-0">
+<<<<<<< HEAD
                     <ul class="list-group list-group-flush w-100" id="recentResolved"></ul>
+=======
+                    <ul class="list-group list-group-flush w-100" id="resolvedTable" style="min-height: 1px;"></ul>
+>>>>>>> 31e81c5f218d5b12b030daaa72bfae2929b3dbf7
                 </div>
             </div>
         </div>
@@ -200,7 +208,11 @@
                     options: { responsive: true, scales: { y: { beginAtZero: true } } }
                 });
 
+<<<<<<< HEAD
                 const listReported = document.getElementById('recentReported');
+=======
+                const listReported = document.getElementById('reportedTable');
+>>>>>>> 31e81c5f218d5b12b030daaa72bfae2929b3dbf7
                 if (listReported && data.recent_reported) {
                     listReported.innerHTML = '';
                     data.recent_reported.forEach(item => {
@@ -214,7 +226,11 @@
                     });
                 }
 
+<<<<<<< HEAD
                 const listResolved = document.getElementById('recentResolved');
+=======
+                const listResolved = document.getElementById('resolvedTable');
+>>>>>>> 31e81c5f218d5b12b030daaa72bfae2929b3dbf7
                 if (listResolved && data.recent_resolved) {
                     listResolved.innerHTML = '';
                     data.recent_resolved.forEach(item => {
@@ -488,4 +504,8 @@
         .catch(error => console.error('Error submit form:', error));
     }
 </script>
+<<<<<<< HEAD
 {% endblock %}
+=======
+{% endblock %}
+>>>>>>> 31e81c5f218d5b12b030daaa72bfae2929b3dbf7

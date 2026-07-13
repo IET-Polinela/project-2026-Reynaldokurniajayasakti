@@ -14,6 +14,7 @@ class IsOwnerAndDraftOrReadOnly(permissions.BasePermission):
         return request.user and request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
+<<<<<<< HEAD
         # 1. Jika metodenya SAFE_METHODS (GET, HEAD, OPTIONS), loloskan pengecekan
         if request.method in permissions.SAFE_METHODS:
             return True
@@ -29,3 +30,18 @@ class IsOwnerAndDraftOrReadOnly(permissions.BasePermission):
             
         # 4. ATURAN BARIS 15-16 DI PROYEKTOR (Untuk PUT/PATCH Edit):
         return obj.status == 'DRAFT'
+=======
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        if request.user.is_staff:
+            return True
+
+        if request.method == 'DELETE':
+            return obj.status == 'DRAFT' and obj.reporter == request.user
+
+        if obj.status == 'DRAFT' and obj.reporter == request.user:
+            return True
+
+        return False
+>>>>>>> 31e81c5f218d5b12b030daaa72bfae2929b3dbf7

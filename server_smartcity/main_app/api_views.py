@@ -4,6 +4,10 @@ from rest_framework.pagination import PageNumberPagination  # <-- TAMBAHAN LAB 1
 from .models import Report
 from .serializers import ReportSerializer
 from .permissions import IsOwnerAndDraftOrReadOnly
+<<<<<<< HEAD
+=======
+from drf_spectacular.utils import extend_schema
+>>>>>>> 31e81c5f218d5b12b030daaa72bfae2929b3dbf7
 
 # =====================================================================
 # TAMBAHAN LAB 12: Konfigurasi Server-Side Pagination (page_size = 10)
@@ -72,6 +76,7 @@ class ReportViewSet(viewsets.ModelViewSet):
         serializer.save(reporter=self.request.user)
 
     def update(self, request, *args, **kwargs):
+<<<<<<< HEAD
         """
         Meng-override method update (Sesuai Aturan Baris 14 di Proyektor):
         - Admin ==> Cuma ngubah status aja (tidak boleh mengubah judul, deskripsi, dll).
@@ -80,20 +85,42 @@ class ReportViewSet(viewsets.ModelViewSet):
         
         if request.user.is_staff:
             # Jika yang login adalah Admin, pastikan dia HANYA mengirimkan field 'status'
+=======
+        instance = self.get_object()
+
+        if request.user.is_staff:
+>>>>>>> 31e81c5f218d5b12b030daaa72bfae2929b3dbf7
             if 'status' in request.data and len(request.data) == 1:
                 instance.status = request.data['status']
                 instance.save()
                 return Response({"message": "Status laporan berhasil diperbarui oleh Admin!"}, status=status.HTTP_200_OK)
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> 31e81c5f218d5b12b030daaa72bfae2929b3dbf7
             return Response(
                 {"detail": "Gagal! Admin hanya diizinkan untuk mengubah 'status' laporan saja."},
                 status=status.HTTP_400_BAD_REQUEST
             )
+<<<<<<< HEAD
             
         # Jika yang login adalah Citizen pemilik laporan, jalankan proses update normal (PUT/PATCH)
         return super().update(request, *args, **kwargs)
 
     # === UPDATE FIX: PENGHAPUSAN LANGSUNG DAN VALIDASI DB ===
+=======
+
+        if instance.status == 'DRAFT' and instance.reporter == request.user and request.data.get('status') == 'REPORTED':
+            instance.status = 'REPORTED'
+            instance.save()
+            return Response({"message": "Laporan berhasil diajukan!"}, status=status.HTTP_200_OK)
+
+        return super().update(request, *args, **kwargs)
+
+    # === UPDATE FIX: PENGHAPUSAN LANGSUNG DAN VALIDASI DB ===
+    @extend_schema(exclude=True) 
+>>>>>>> 31e81c5f218d5b12b030daaa72bfae2929b3dbf7
     def destroy(self, request, *args, **kwargs):
         """
         Meng-override method destroy untuk memaksa objek terhapus langsung dari database
@@ -107,4 +134,9 @@ class ReportViewSet(viewsets.ModelViewSet):
         return Response(
             {"message": "Sukses! Laporan berstatus DRAFT telah dihapus permanen dari database."}, 
             status=status.HTTP_200_OK
+<<<<<<< HEAD
         )
+=======
+        )
+
+>>>>>>> 31e81c5f218d5b12b030daaa72bfae2929b3dbf7
